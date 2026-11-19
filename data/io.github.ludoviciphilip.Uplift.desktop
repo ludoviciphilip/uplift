@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Uplift
+GenericName=Game upscaling
+Comment=Better upscaling and frame generation for your Steam games
+Comment[pt_BR]=Upscaling e geração de quadros melhores para seus jogos da Steam
+Exec=@BIN@/uplift
+Icon=io.github.ludoviciphilip.Uplift
+Terminal=false
+Categories=Game;Utility;
+Keywords=FSR;OptiScaler;gamescope;lsfg;Lossless;upscaling;Steam;Proton;
+StartupNotify=true
+StartupWMClass=io.github.ludoviciphilip.Uplift

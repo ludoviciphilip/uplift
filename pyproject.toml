@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "uplift"
+version = "0.1.0"
+description = "Better upscaling and frame generation for Steam games on Linux (OptiScaler, Unreal TSR/TAAU, gamescope FSR/NIS, vkBasalt, lsfg-vk)"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [{ name = "Luis Felipe" }]
+keywords = ["steam", "proton", "fsr", "optiscaler", "gamescope", "lsfg-vk", "upscaling", "linux-gaming"]
+classifiers = [
+  "Operating System :: POSIX :: Linux",
+  "Topic :: Games/Entertainment",
+  "Environment :: X11 Applications :: GTK",
+  "Environment :: Console :: Curses",
+]
+dependencies = []
+
+[project.optional-dependencies]
+tui = ["textual>=0.80"]
+gui = ["PyGObject>=3.50"]
+
+[project.scripts]
+uplift = "uplift.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/ludoviciphilip/uplift"
+
+[tool.setuptools]
+packages = ["uplift"]
