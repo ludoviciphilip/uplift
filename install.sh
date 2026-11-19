@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Uplift installer — per-user, no root needed for Uplift itself.
-#   ./install.sh            install / update
+#   ./install.sh              install / update (asks to install the optional tools)
+#   ./install.sh --deps       … and install the tools without asking
+#   ./install.sh --no-deps    only Uplift
 #   ./install.sh --uninstall
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -16,9 +18,22 @@ if [[ ${1:-} == --uninstall ]]; then
   exit 0
 fi
 
+DEPS=ask
+for a in "$@"; do case $a in --deps) DEPS=yes;; --no-deps) DEPS=no;; esac; done
+
+# Tools first: on a minimal system this also brings Python and GTK.
+case $DEPS in
+  yes) "$HERE/scripts/deps.sh" --yes ;;
+  ask) "$HERE/scripts/deps.sh" ;;
+esac
+echo
+
 PY=/usr/bin/python3
-[[ -x $PY ]] || PY=$(command -v python3)
-"$PY" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)' || { echo "Python 3.10+ required"; exit 1; }
+[[ -x $PY ]] || PY=$(command -v python3 || true)
+if [[ -z $PY ]] || ! "$PY" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)'; then
+  echo "✗ Uplift needs Python 3.10 or newer (python3). Install it, or run: ./install.sh --deps" >&2
+  exit 1
+fi
 
 mkdir -p "$APP" "$BIN" "$DATA/applications" "$DATA/icons/hicolor/scalable/apps"
 rm -rf "$APP/uplift"
@@ -36,7 +51,6 @@ gtk-update-icon-cache -q -t "$DATA/icons/hicolor" 2>/dev/null || true
 
 echo "✓ Uplift installed:  uplift  (window)  ·  uplift --tui  ·  uplift --help"
 "$PY" -c 'import gi; gi.require_version("Gtk","4.0"); gi.require_version("Adw","1"); from gi.repository import Adw' 2>/dev/null \
-  || echo "! Window needs GTK4 + libadwaita + PyGObject (Arch: sudo pacman -S python-gobject gtk4 libadwaita)"
-"$PY" -c 'import textual' 2>/dev/null || echo "· Terminal UI is optional: sudo pacman -S python-textual (or pip install textual)"
-PYTHONPATH="$APP" "$PY" -m uplift doctor | sed -n '/Optional tools/,$p'
+  || echo "! The window needs GTK4 + libadwaita + PyGObject (run: ./install.sh --deps)"
+"$PY" -c 'import textual' 2>/dev/null || echo "· The terminal UI needs Textual (run: ./install.sh --deps, or pip install textual)"
 case ":$PATH:" in *":$BIN:"*) ;; *) echo "! $BIN is not in your PATH";; esac

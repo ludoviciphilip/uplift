@@ -4,6 +4,8 @@
 
 [English](README.md)
 
+![Janela do Uplift](docs/screenshot-gui.png)
+
 O Uplift lê sua biblioteca da Steam, examina cada jogo instalado (motor, API gráfica, upscalers que o jogo já traz, anticheat) e configura o melhor caminho de upscaling que aquele jogo suporta:
 
 | O jogo tem… | O Uplift faz | Qualidade |
@@ -24,12 +26,9 @@ git clone https://github.com/ludoviciphilip/uplift
 cd uplift && ./install.sh
 ```
 
-Precisa de Python 3.10+. A janela usa GTK 4 + libadwaita (`python-gobject gtk4 libadwaita` no Arch); a interface de terminal usa o [Textual](https://textual.textualize.io) (`python-textual`). Ferramentas opcionais, usadas quando presentes:
+Precisa de Python 3.10+.
 
-```bash
-sudo pacman -S gamescope mangohud lib32-mangohud gamemode lib32-gamemode
-paru -S vkbasalt lib32-vkbasalt lsfg-vk     # o lsfg-vk precisa do Lossless Scaling (Steam) no beta "lsfg-vk"
-```
+O `./install.sh` oferece instalar as ferramentas que o Uplift usa (gamescope, MangoHud, GameMode, vkBasalt, lsfg-vk, GTK/Textual) com o gerenciador de pacotes da sua distro: Arch (+AUR via paru/yay), Debian/Ubuntu, Fedora, openSUSE. `--deps` instala sem perguntar, `--no-deps` pula. O **Lossless Scaling** (exigido pelo lsfg-vk) é pago na Steam: instale e escolha o beta `lsfg-vk`.
 
 ## Uso
 
@@ -48,6 +47,7 @@ uplift doctor                                 # ferramentas, monitores, placa de
 
 ## Observações
 
+- **O caminho do OptiScaler é experimental**: testado de ponta a ponta numa biblioteca sintética (instalar → reaplicar → desfazer idêntico byte a byte), ainda não em muitos jogos reais com DLSS/FSR2. Relatos são bem-vindos!
 - **Anticheat** (EasyAntiCheat, BattlEye…): o Uplift nunca coloca DLLs nesses jogos.
 - **OptiScaler em NVIDIA GTX** com jogos que só têm DLSS é experimental (spoof de GPU + fakenvapi). Jogos com FSR 2/XeSS funcionam sem isso.
 - **Unreal**: abra o jogo uma vez para ele criar a pasta de configuração.
