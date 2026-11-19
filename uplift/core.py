@@ -22,8 +22,8 @@ CONFIG = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / "upl
 CACHE = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "uplift"
 STATE = DATA / "state.json"
 
-QUALITY = {  # render scale per axis
-    "native": 1.0, "ultra": 0.77, "quality": 0.67, "balanced": 0.58, "performance": 0.50,
+QUALITY = {  # render scale per axis — AMD's FSR ratios (1.3 / 1.5 / 1.7 / 2.0)
+    "native": 1.0, "ultra": 1 / 1.3, "quality": 1 / 1.5, "balanced": 1 / 1.7, "performance": 1 / 2.0,
 }
 METHODS = ("auto", "off", "unreal", "optiscaler", "gamescope-fsr", "gamescope-nis", "wine-fsr")
 LSFG = {"off": None, "x2": ("uplift-x2", 2), "x2-perf": ("uplift-x2-perf", 2), "x3": ("uplift-x3", 3)}
@@ -31,7 +31,7 @@ LSFG = {"off": None, "x2": ("uplift-x2", 2), "x2-perf": ("uplift-x2-perf", 2), "
 # env vars uplift manages; stripped from the user's own options when we set them
 MANAGED_ENV = ("WINE_FULLSCREEN_FSR", "WINE_FULLSCREEN_FSR_STRENGTH", "WINE_FULLSCREEN_FSR_MODE",
                "WINE_FULLSCREEN_FSR_CUSTOM_MODE", "ENABLE_VKBASALT", "VKBASALT_CONFIG_FILE",
-               "LSFGVK_PROFILE", "DXVK_FRAME_RATE", "VKD3D_FRAME_RATE", "MANGOHUD")
+               "LSFGVK_PROFILE", "DXVK_FRAME_RATE", "VKD3D_FRAME_RATE", "MANGOHUD", "ENABLE_GAMESCOPE_WSI")
 
 
 @dataclass
@@ -418,6 +418,10 @@ def build_plan(game: steam.Game, info: detect.Info, tools: system.Tools, setting
                 gs.append("--mangoapp")
             gs.append("--")
             p.wrappers.append(gs)
+            if tools.nvidia:
+                # gamescope's WSI layer crashes with any upscaling filter on the proprietary NVIDIA driver
+                # (SyncobjFdToHandle → vkImportSemaphoreFdKHR fails → segfault). Without the layer it works.
+                p.env["ENABLE_GAMESCOPE_WSI"] = "0"
             p.steps.append(Step("launch", "step_gamescope", {"filter": filt.upper(), "w": w, "h": h,
                                                              "W": mon.width, "H": mon.height}))
     elif method == "wine-fsr":

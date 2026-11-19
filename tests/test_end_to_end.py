@@ -150,7 +150,7 @@ class EndToEnd(unittest.TestCase):
         lib.tools.lsfg = True
         lib.tools.lsfg_dll = TMP / "lsfg-vk.dll"
         plans = []
-        for appid, extra in (("100", {}), ("200", {"quality": "balanced"}), ("300", {"lsfg": "x2-perf"})):
+        for appid, extra in (("100", {}), ("200", {"quality": "balanced"}), ("300", {"lsfg": "x2-perf", "method": "off"})):
             e = lib.get(appid)
             s = e.settings(lib.tools)
             for k, v in extra.items():
@@ -169,7 +169,7 @@ class EndToEnd(unittest.TestCase):
         oi = (bin_ / "OptiScaler.ini").read_text()
         self.assertIn("Dx12Upscaler=fsr31", oi)
         self.assertIn("Dxgi=false", oi)            # has FSR2 inputs → no spoofing needed
-        self.assertIn("UpscaleRatioOverrideValue=1.724", oi)
+        self.assertIn("UpscaleRatioOverrideValue=1.700", oi)
         lo = {a: steam.get_launch_options(self.root, a) for a in ("100", "200", "300")}
         self.assertEqual(lo["100"], "mangohud %command% -dx12")
         self.assertIn("WINEDLLOVERRIDES=dxgi=n,b", lo["200"])
@@ -190,6 +190,27 @@ class EndToEnd(unittest.TestCase):
         self.assertEqual(steam.get_launch_options(self.root, "100"), "MANGOHUD=1 %command% -dx12")
         self.assertEqual(steam.get_launch_options(self.root, "300"), "gamemode %%command")
         self.assertEqual(core.load_state(), {})
+
+    def test_3b_gamescope_nvidia(self):
+        lib = Library()
+        lib.load()
+        lib.tools.gamescope = True
+        lib.tools.nvidia = True
+        e = lib.get("300")
+        s = e.settings(lib.tools)
+        s.method, s.quality, s.monitor = "gamescope-fsr", "quality", ""
+        from uplift import system as sysm
+        sysm.monitors.cache_clear()
+        sysm.monitors.__wrapped__  # noqa: B018
+        p = lib.plan(e, s)
+        self.assertEqual(p.env.get("ENABLE_GAMESCOPE_WSI"), "0")
+        self.assertIn("ENABLE_GAMESCOPE_WSI=0", p.launch_options)
+        gs = p.wrappers[-1]
+        W, H = int(gs[gs.index("-W") + 1]), int(gs[gs.index("-H") + 1])
+        w, h = int(gs[gs.index("-w") + 1]), int(gs[gs.index("-h") + 1])
+        self.assertEqual((w, h), (round(W / 1.5 / 2) * 2, round(H / 1.5 / 2) * 2))
+        lib.tools.nvidia = False
+        self.assertNotIn("ENABLE_GAMESCOPE_WSI", lib.plan(e, s).env)
 
     def test_4_pe_parser_real_dll(self):
         # sanity on a real Windows binary if Proton is around
