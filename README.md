@@ -1,12 +1,18 @@
 # Uplift
 
-**Better upscaling and frame generation for your Steam games on Linux — picked per game, applied in one click, undone in one click.**
+**Open-source upscaling and frame generation manager for Steam games on Linux — picked per game, applied in one click, undone in one click.**
 
-[Português](README.pt-BR.md)
+[![License: MIT](https://img.shields.io/github/license/ludoviciphilip/uplift)](LICENSE)
+[![Platform: Linux](https://img.shields.io/badge/platform-linux-informational)](#install)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](pyproject.toml)
+
+[Português](README.pt-BR.md) · [Features](#features) · [Install](#install) · [Usage](#use) · [Alternatives](#alternatives--comparison)
 
 ![Uplift window](docs/screenshot-gui.png)
 
-Uplift reads your Steam library, inspects every installed game (engine, graphics API, bundled upscalers, anti-cheat) and sets up the best upscaling path that game supports:
+Uplift reads your Steam library, inspects every installed game (engine, graphics API, bundled upscalers, anti-cheat) and sets up the best upscaling path that game supports — DLSS/FSR/XeSS swaps via OptiScaler, Unreal Engine's own TSR/TAAU, or gamescope's FSR/NIS, plus optional lsfg-vk frame generation, on any distro with Proton:
+
+## Features
 
 | The game has… | Uplift does | Quality |
 |---|---|---|
@@ -61,6 +67,16 @@ python3 -m unittest discover -s tests -v
 ```
 
 Builds a fake Steam library (Unreal game, DLSS+FSR2 game, DX11 game, anti-cheat game), applies, re-applies and undoes, and checks every file is byte-identical afterwards.
+
+## Alternatives / comparison
+
+- **vs. installing [OptiScaler](https://github.com/optiscaler/OptiScaler) by hand**: Uplift detects per game whether it can swap DLSS/FSR2/XeSS for FSR 3.1 and does the file copy + config for you, with one-click undo (OptiScaler itself does the actual upscaling work; Uplift automates setting it up).
+- **vs. [Lossless Scaling](https://store.steampowered.com/app/993090/Lossless_Scaling/)'s own frame generation**: Uplift drives [lsfg-vk](https://github.com/PancakeTAS/lsfg-vk), an open-source Vulkan layer that brings Lossless Scaling's frame generation to native Linux/Proton games, and caps the game's frame rate so generated frames land on your display's refresh rate. Lossless Scaling itself is still required (it ships the frame-generation DLL that lsfg-vk loads).
+- **vs. manually editing `Engine.ini` or Steam launch options**: Uplift finds the right keys/flags for Unreal TSR/TAAU and gamescope, writes them safely (Steam's launch-options file gets rewritten while Steam runs, so Uplift closes/saves/reopens it for you), and reverts everything with `uplift undo`.
+
+### Trademark notice
+
+NVIDIA DLSS, AMD FSR and Intel XeSS are trademarks of their respective owners. Lossless Scaling is a trademark of its developer/publisher, THS. Unreal Engine is a trademark of Epic Games. Uplift is an independent, open-source project and is not affiliated with, sponsored by, or endorsed by NVIDIA, AMD, Intel, THS, Epic Games, or Valve.
 
 ## License
 
