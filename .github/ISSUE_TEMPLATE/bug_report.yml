@@ -1,0 +1,64 @@
+name: Bug report
+description: Something didn't work as expected
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+
+  - type: input
+    id: game
+    attributes:
+      label: Game (and Steam AppID, if known)
+      placeholder: "e.g. Dark Souls III (374320)"
+
+  - type: dropdown
+    id: interface
+    attributes:
+      label: Interface used
+      options:
+        - GUI (uplift)
+        - TUI (uplift --tui)
+        - CLI (uplift <command>)
+    validations:
+      required: true
+
+  - type: textarea
+    id: command
+    attributes:
+      label: Command / action
+      description: The CLI command you ran, or what you clicked in the GUI/TUI.
+      render: shell
+
+  - type: textarea
+    id: doctor
+    attributes:
+      label: "`uplift doctor` output"
+      description: Run `uplift doctor` and paste the output here.
+      render: shell
+
+  - type: input
+    id: distro
+    attributes:
+      label: Distribution and version
+      placeholder: "e.g. Arch Linux, Fedora 40, Debian 12"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Uplift version / commit
+      placeholder: "git rev-parse HEAD, or the tag/commit you installed"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or error output
+      render: shell
